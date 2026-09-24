@@ -63,6 +63,32 @@ struct ContentView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 20))
                     .disabled(isGenerating)
 
+                Button {
+                    // The drag gesture below owns press-and-hold behavior.
+                } label: {
+                    Image(systemName: isSpeechActive
+                        ? "stop.circle.fill"
+                        : "mic.circle.fill")
+                        .font(.system(size: 30))
+                        .foregroundStyle(isSpeechActive ? .red : .blue)
+                }
+                .disabled(isGenerating || speech.state == .installingModel || speech.state == .stopping)
+                .accessibilityLabel("Hold to speak")
+                .accessibilityHint("Keep your finger down while speaking. Lift your finger to stop and place the transcript in the message field.")
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { _ in
+                            guard !isPressingToSpeak else { return }
+                            isPressingToSpeak = true
+                            Task { await speech.startTranscribing() }
+                        }
+                        .onEnded { _ in
+                            guard isPressingToSpeak else { return }
+                            isPressingToSpeak = false
+                            Task { await finishSpeech() }
+                        }
+                )
+
                 Button(action: { Task { await sendMessage() } }) {
                     Image(systemName: "arrow.up.circle.fill")
                         .font(.system(size: 30))
