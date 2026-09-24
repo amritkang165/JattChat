@@ -97,6 +97,25 @@ struct ContentView: View {
                 .disabled(!canSend)
             }
             .padding()
+
+            if isSpeechActive || !speech.partialTranscript.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(isSpeechActive ? "Listening... Lift your finger to stop." : "Transcript")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(speech.transcript)
+                        .font(.footnote)
+                        .foregroundStyle(.primary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal)
+            }
+
+            if let speechError = speech.error {
+                Text(speechError.localizedDescription)
+                    .foregroundStyle(.red)
+                    .padding(.horizontal)
+            }
         }
         .task {
             await ai.initializeIfNeeded()
