@@ -44,30 +44,100 @@ struct ContentView: View {
                     .padding(10)
                     .background(Color.gray.opacity(0.15))
                     .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .disabled(isGenerating)
 
-                Button(action: sendMessage) {
+                Button(action: { Task { await sendMessage() } }) {
                     Image(systemName: "arrow.up.circle.fill")
                         .font(.system(size: 30))
-                        .foregroundStyle(input.isEmpty ? .gray : .blue)
+                        .foregroundStyle(canSend ? .blue : .gray)
                 }
-                .disabled(input.isEmpty)
+                .disabled(!canSend)
             }
             .padding()
         }
+        .task {
+            await ai.initializeIfNeeded()
+            switch ai.availability {
+            case .available:
+                break
+            case .unavailable(let reason):
+                switch reason {
+                case .deviceNotEligible:
+                    errorMessage = "This device doesn’t support Apple Intelligence."
+                case .appleIntelligenceNotEnabled:
+                    errorMessage = "Please enable Apple Intelligence in Settings."
+                case .modelNotReady:
+                    errorMessage = "On-device model not ready yet. Keep the phone on power and Wi‑Fi."
+                }
+            }
+            // Optional: log availability to help debug
+            print("Availability:", String(describing: ai.availability))
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Reset") {
+                    Task { await resetAll() }
+                }
+            }
+        }
     }
 
-    func sendMessage() {
-        modelContext.insert(ChatMessage(text: input, isUser: true))
+    private var canSend: Bool {
+        !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !isGenerating
+    }
+
+    @MainActor
+    private func insertMessage(_ text: String, isUser: Bool) -> ChatMessage {
+        let message = ChatMessage(text: text, isUser: isUser)
+        modelContext.insert(message)
+        return message
+    }
+
+    private func sendMessage() async {
+        let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        guard !isGenerating else { return }
+
+        errorMessage = nil
+        isGenerating = true
+
+        // 1) Save user message
+        _ = insertMessage(trimmed, isUser: true)
+
+        // 2) Clear input
         input = ""
 
-        let reply = ChatMessage(text: "", isUser: false)
-        modelContext.insert(reply)
-
-        var tokens = ["Balle", " balle!", " Main", " soch", " riha", " si..."]
-        Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { timer in
-            guard !tokens.isEmpty else { timer.invalidate(); return }
-            let token = tokens.removeFirst()
-            reply.text += token
+        // 3) Ask on-device model
+        do {
+            print("Calling model with:", trimmed)
+            let replyText = try await ai.generateReply(to: trimmed)
+            print("Model replied:", replyText)
+            _ = insertMessage(replyText, isUser: false)
+        } catch {
+            if let aiErr = error as? AIService.AIServiceError {
+                errorMessage = aiErr.localizedDescription
+            } else {
+                errorMessage = error.localizedDescription
+            }
         }
+
+        isGenerating = false
+    }
+
+    @MainActor
+    private func deleteAllMessages() {
+        for msg in messages {
+            modelContext.delete(msg)
+        }
+    }
+
+    private func resetAll() async {
+        await MainActor.run {
+            deleteAllMessages()
+            errorMessage = nil
+            input = ""
+        }
+        await ai.resetConversation()
+        print("Reset complete.")
     }
 }
