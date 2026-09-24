@@ -155,6 +155,20 @@ struct ContentView: View {
         !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !isGenerating
     }
 
+    private var isSpeechActive: Bool {
+        speech.state == .recording || speech.state == .interrupted
+    }
+
+    private func finishSpeech() async {
+        await speech.stopTranscribing()
+        let dictatedText = speech.transcript.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+        if !dictatedText.isEmpty {
+            input = dictatedText
+        }
+    }
+
     @MainActor
     private func insertMessage(_ text: String, isUser: Bool) -> ChatMessage {
         let message = ChatMessage(text: text, isUser: isUser)
