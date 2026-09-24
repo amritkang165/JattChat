@@ -1,11 +1,5 @@
-//
-//  JattChatApp.swift
-//  JattChat
-//
-//  Created by Amrit kang on 24/09/26.
-//
-
 import SwiftUI
+import SwiftData
 
 @main
 struct JattChatApp: App {
@@ -13,5 +7,6 @@ struct JattChatApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: ChatMessage.self)
     }
 }
