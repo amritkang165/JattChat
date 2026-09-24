@@ -144,6 +144,11 @@ struct ContentView: View {
                 }
             }
         }
+        .onDisappear {
+            Task {
+                await speech.stopTranscribing()
+            }
+        }
     }
 
     private var canSend: Bool {
