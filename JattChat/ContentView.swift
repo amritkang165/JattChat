@@ -130,6 +130,8 @@ struct ContentView: View {
                     errorMessage = "Please enable Apple Intelligence in Settings."
                 case .modelNotReady:
                     errorMessage = "On-device model not ready yet. Keep the phone on power and Wi‑Fi."
+                @unknown default:
+                    errorMessage = "On-device model is currently unavailable."
                 }
             }
             // Optional: log availability to help debug
