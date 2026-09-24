@@ -9,8 +9,10 @@ struct ContentView: View {
     @State private var input = ""
     @State private var isGenerating = false
     @State private var errorMessage: String?
+    @State private var isPressingToSpeak = false
 
     @StateObject private var ai = AIService()
+    @StateObject private var speech = SpeechService()
 
     var body: some View {
         VStack {
