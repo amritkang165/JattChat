@@ -1,13 +1,26 @@
 import SwiftUI
 import SwiftData
+import FoundationModels
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \ChatMessage.timestamp) private var messages: [ChatMessage]
+
     @State private var input = ""
+    @State private var isGenerating = false
+    @State private var errorMessage: String?
+
+    @StateObject private var ai = AIService()
 
     var body: some View {
         VStack {
+            if let errorMessage {
+                Text(errorMessage)
+                    .foregroundColor(.red)
+                    .padding(.horizontal)
+                    .padding(.top, 8)
+            }
+
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(spacing: 10) {
