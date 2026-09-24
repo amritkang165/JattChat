@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8AF1C2BC30651E700087781D /* FoundationModels.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8AF1C2BB30651E700087781D /* FoundationModels.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		8AF1C2A6306469F20087781D /* JattChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JattChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8AF1C2BB30651E700087781D /* FoundationModels.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FoundationModels.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/FoundationModels.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -23,6 +28,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8AF1C2BC30651E700087781D /* FoundationModels.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -33,6 +39,7 @@
 			isa = PBXGroup;
 			children = (
 				8AF1C2A8306469F20087781D /* JattChat */,
+				8AF1C2BA30651E700087781D /* Frameworks */,
 				8AF1C2A7306469F20087781D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -43,6 +50,14 @@
 				8AF1C2A6306469F20087781D /* JattChat.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		8AF1C2BA30651E700087781D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8AF1C2BB30651E700087781D /* FoundationModels.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
