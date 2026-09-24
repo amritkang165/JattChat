@@ -28,12 +28,27 @@ struct ContentView: View {
                             MessageBubble(message: msg)
                                 .id(msg.id)
                         }
+
+                        if isGenerating {
+                            HStack {
+                                Spacer()
+                                ProgressView()
+                                    .progressViewStyle(.circular)
+                                Spacer()
+                            }
+                            .padding(.vertical, 8)
+                        }
                     }
                     .padding()
                 }
                 .onChange(of: messages.count) {
                     if let last = messages.last {
-                        withAnimation { proxy.scrollTo(last.id) }
+                        withAnimation { proxy.scrollTo(last.id, anchor: .bottom) }
+                    }
+                }
+                .onAppear {
+                    if let last = messages.last {
+                        proxy.scrollTo(last.id, anchor: .bottom)
                     }
                 }
             }
